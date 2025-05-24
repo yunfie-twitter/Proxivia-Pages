@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Proxivia Network Service</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    /* — カラー定義 — */
+    :root {
+      --primary: #0052ff;
+      --gray-100: #f7f9fc;
+      --gray-300: #d1d9e6;
+      --gray-700: #333;
+      --white: #fff;
+      --radius: 8px;
+    }
+    * { margin:0; padding:0; box-sizing: border-box; }
+    body {
+      font-family: 'Open Sans', sans-serif;
+      color: var(--gray-700);
+      background: var(--gray-100);
+      line-height: 1.6;
+    }
+    a { text-decoration: none; color: inherit; }
+    img { max-width:100%; height: auto; display:block; }
+
+    /* — ヘッダー — */
+    header {
+      position: sticky;
+      top: 0;
+      background: var(--white);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      z-index: 10;
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--primary); }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+    }
+    nav a {
+      font-weight: 600;
+      color: var(--gray-700);
+      transition: color .2s;
+    }
+    nav a:hover { color: var(--primary); }
+
+    /* — ヒーローセクション — */
+    .hero {
+      position: relative;
+      height: 70vh;
+      background: url('https://img.yunfie.org/files/b6b81114-ae32-491c-8eb4-6011685fa1de.gif') center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+    }
+    .hero-content {
+      position: relative;
+      color: var(--white);
+      text-align: center;
+      padding: 0 1rem;
+    }
+    .hero-content h1 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 800;
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .hero-content p {
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      transition: background .2s, color .2s;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: #003ecb;
+    }
+
+    /* — サービス紹介 — */
+    .services {
+      max-width: 1200px;
+      margin: 4rem auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4rem;
+      padding: 0 1rem;
+    }
+    .service-item {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    .service-item:nth-child(even) { flex-direction: row-reverse; }
+    .service-text {
+      flex: 1;
+    }
+    .service-text h2 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      font-size: 1.75rem;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+    .service-text p {
+      color: var(--gray-700);
+      margin-bottom: 1rem;
+    }
+    .service-text a {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .service-img {
+      flex: 1;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+
+    /* — フッター — */
+    footer {
+      background: var(--white);
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.9rem;
+      color: var(--gray-700);
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
+      margin-top: 4rem;
+    }
+
+    /* — レスポンシブ — */
+    @media (max-width: 768px) {
+      .hero { height: 50vh; }
+      .hero-content h1 { font-size: 2rem; }
+      .services .service-item {
+        flex-direction: column !important;
+      }
+      .service-item { text-align: center; }
+      .service-text h2 { font-size: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ヘッダー -->
+  <header>
+    <div class="nav-container">
+      <div class="logo">Proxivia</div>
+      <nav>
+        <ul>
+          <li><a href="#hero">ホーム</a></li>
+          <li><a href="#services">サービス</a></li>
+          <li><a href="#contact">お問い合わせ</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ヒーロー -->
+  <section id="hero" class="hero">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1>ネットワークの未来を、自由に謳歌する</h1>
+      <p>プライバシー保護と高速アクセスを両立する<br>プロキシ＆OSフォークソリューション</p>
+      <a href="#services" class="btn btn-primary">サービスを見る</a>
+    </div>
+  </section>
+
+  <!-- サービス紹介 -->
+  <section id="services" class="services">
+    <!-- Shade -->
+    <div class="service-item">
+      <div class="service-text">
+        <h2>Proxivia Shade</h2>
+        <p>ブラウジングの壁を突破し、どこでも高速・安全にインターネットへ接続できるプロキシサービス。</p>
+        <a href="https://bypass.proxivia.net/" target="_blank">公式サイトへ →</a>
+      </div>
+      <div class="service-img">
+        <img src="https://img.yunfie.org/files/da56df47-adba-41bd-8dca-5349c314fd1e.png" alt="Proxivia Shade">
+      </div>
+    </div>
+    <!-- AnuraOS-Fork -->
+    <div class="service-item">
+      <div class="service-text">
+        <h2>AnuraOS-Fork</h2>
+        <p>軽量で安定したWebOSフォーク。カスタマイズ自由度を追求し、あらゆるデバイスに最適化。</p>
+        <a href="https://os.proxivia.net/" target="_blank">公式サイトへ →</a>
+      </div>
+      <div class="service-img">
+        <img src="https://img.yunfie.org/files/a5f99170-0896-4ed9-b2d9-90d398d4c443.png" alt="AnuraOS-Fork">
+      </div>
+    </div>
+    <!-- Pyrus-Fork -->
+    <div class="service-item">
+      <div class="service-text">
+        <h2>Pyrus-Fork</h2>
+        <p>業界標準の互換性を維持しつつ、日本語環境を徹底最適化したプロキシフォーク。</p>
+        <a href="https://pyrus.proxivia.net/jp/" target="_blank">公式サイトへ →</a>
+      </div>
+      <div class="service-img">
+        <img src="https://img.yunfie.org/files/2428635f-020e-4576-ac63-4a6e706e1fe5.png" alt="Pyrus-Fork">
+      </div>
+    </div>
+    <!-- E-Nova DDNS -->
+    <div class="service-item">
+      <div class="service-text">
+        <h2>E-Nova DDNS</h2>
+        <p>ダイナミックDNSをシンプルに管理。家庭から企業まで安定したホスト名解決を提供するDDNSサービス。</p>
+        <a href="https://e-nova.cc/" target="_blank">公式サイトへ →</a>
+      </div>
+      <div class="service-img">
+        <img src="https://img.yunfie.org/files/e9581f10-1a2e-482a-b402-330d5b7aa23b.png" alt="E-Nova DDNS">
+      </div>
+    </div>
+    <!-- LiveLeaper -->
+    <div class="service-item">
+      <div class="service-text">
+        <h2>LiveLeaper</h2>
+        <p>YouTubeの動画ダウンロードを行えるデスクトップアプリケーション。</p>
+        <a href="https://github.com/yunfie-twitter/LiveLeaper" target="_blank">配布ページへ →</a>
+      </div>
+      <div class="service-img">
+        <img src="https://img.yunfie.org/files/238006e7-70c0-48d3-85b5-490dd484993a.webp" alt="LiveLeaper">
+      </div>
+    </div>
+  </section>
+
+  <!-- フッター -->
+  <footer id="contact">
+    <p>© 2025 Proxivia Network Service. All Rights Reserved.</p>
+    <p><a href="mailto:info@proxivia.net">info@proxivia.net</a></p>
+  </footer>
+
+</body>
+</html>
