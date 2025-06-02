@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>P2Pチャット（TURN/STUN & 送受信切替・QRコード対応）</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .panel {
+      margin-bottom: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      font-family: monospace;
+      padding: 8px;
+      margin-top: 8px;
+      resize: vertical;
+    }
+    .chat-box {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #e5ddd5;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .messages {
+      height: 200px;
+      overflow-y: auto;
+      background: #fff;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    .message {
+      padding: 5px 10px;
+      margin: 5px 0;
+      border-radius: 10px;
+      max-width: 80%;
+      word-break: break-word;
+      align-self: flex-start;
+    }
+    .sent {
+      background-color: #dcf8c6;
+      align-self: flex-end;
+      text-align: right;
+      margin-left: auto;
+    }
+    .received {
+      background-color: #fff;
+      text-align: left;
+    }
+    .input-area {
+      display: flex;
+      gap: 10px;
+    }
+    input[type="text"] {
+      flex-grow: 1;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      cursor: pointer;
+    }
+    #qrCode, #answerQrCode {
+      margin-top: 10px;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>P2Pチャット</h2>
+
+    <div class="panel">
+      <button id="btnCreateOffer">Offerを作成（送信側）</button>
+      <button id="btnAcceptOffer">Offerを受信（受信側）</button>
+    </div>
+
+    <div class="panel" id="offerPanel" style="display:none;">
+      <h3>あなたのOffer（送信側）</h3>
+      <textarea id="localOffer" readonly></textarea>
+      <div id="qrCode"></div>
+    </div>
+
+    <div class="panel" id="answerPanel" style="display:none;">
+      <h3>相手のOffer（受信側）</h3>
+      <textarea id="remoteOffer" placeholder="ここに相手のOfferを貼り付け"></textarea>
+      <button id="btnSetRemoteOffer">OfferをセットしてAnswer作成</button>
+
+      <h3>あなたのAnswer（受信側）</h3>
+      <textarea id="localAnswer" readonly></textarea>
+      <div id="answerQrCode"></div>
+    </div>
+
+    <div class="panel" id="setAnswerPanel" style="display:none;">
+      <h3>相手のAnswer（送信側）</h3>
+      <textarea id="remoteAnswer" placeholder="ここに相手のAnswerを貼り付け"></textarea>
+      <button id="btnSetRemoteAnswer">Answerをセット</button>
+    </div>
+
+    <div class="chat-box" id="chatBox" style="display:none;">
+      <div id="chatLog" class="messages"></div>
+      <div class="input-area">
+        <input id="chatInput" type="text" placeholder="メッセージを入力" />
+        <button id="sendBtn" disabled>送信</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const iceServers = {
+      iceServers: [
+        { urls: "stun:stun.cloudflare.com:3478" },
+        { urls: "turn:turn.cloudflare.com:3478?transport=udp" },
+        { urls: "turn:turn.cloudflare.com:3478?transport=tcp" },
+        { urls: "turns:turn.cloudflare.com:5349?transport=tcp" }
+      ]
+    };
+
+    let peer;
+    let dataChannel;
+
+    const chatLog = document.getElementById("chatLog");
+    const chatInput = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    const offerPanel = document.getElementById("offerPanel");
+    const answerPanel = document.getElementById("answerPanel");
+    const setAnswerPanel = document.getElementById("setAnswerPanel");
+    const chatBox = document.getElementById("chatBox");
+
+    function resetPeerConnection() {
+      if (peer) {
+        peer.close();
+      }
+      peer = new RTCPeerConnection(iceServers);
+
+      peer.ondatachannel = e => {
+        dataChannel = e.channel;
+        setupDataChannel();
+      };
+      peer.onicecandidate = e => {
+        // ICE candidateが収集されるたびにここで何か処理できる（今回はコンソール表示のみ）
+        if (e.candidate) {
+          console.log("New ICE candidate:", e.candidate.candidate);
+        }
+      };
+    }
+
+    function setupDataChannel() {
+      dataChannel.onopen = () => {
+        sendBtn.disabled = false;
+        console.log("DataChannel open");
+        chatBox.style.display = "flex";
+      };
+      dataChannel.onclose = () => {
+        sendBtn.disabled = true;
+        console.log("DataChannel closed");
+      };
+      dataChannel.onmessage = e => {
+        addMessage(e.data, "received");
+      };
+    }
+
+    function addMessage(text, type) {
+      const div = document.createElement("div");
+      div.className = `message ${type}`;
+      div.textContent = text;
+      chatLog.appendChild(div);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    sendBtn.onclick = () => {
+      const msg = chatInput.value.trim();
+      if (!msg) return;
+      if (dataChannel && dataChannel.readyState === "open") {
+        dataChannel.send(msg);
+        addMessage(msg, "sent");
+        chatInput.value = "";
+      }
+    };
+
+    // 送信側：Offer作成ボタン
+    document.getElementById("btnCreateOffer").onclick = async () => {
+      resetPeerConnection();
+
+      dataChannel = peer.createDataChannel("chat");
+      setupDataChannel();
+
+      const offer = await peer.createOffer();
+      await peer.setLocalDescription(offer);
+
+      const offerStr = JSON.stringify(peer.localDescription);
+      document.getElementById("localOffer").value = offerStr;
+
+      // QRコード表示
+      document.getElementById("qrCode").innerHTML = "";
+      new QRCode(document.getElementById("qrCode"), {
+        text: offerStr,
+        width: 200,
+        height: 200
+      });
+
+      // UI切替
+      offerPanel.style.display = "block";
+      answerPanel.style.display = "none";
+      setAnswerPanel.style.display = "block";
+      chatBox.style.display = "none";
+    };
+
+    // 受信側：Offerセット→Answer作成
+    document.getElementById("btnSetRemoteOffer").onclick = async () => {
+      resetPeerConnection();
+
+      try {
+        const remoteOffer = JSON.parse(document.getElementById("remoteOffer").value);
+        await peer.setRemoteDescription(remoteOffer);
+
+        const answer = await peer.createAnswer();
+        await peer.setLocalDescription(answer);
+
+        const answerStr = JSON.stringify(peer.localDescription);
+        document.getElementById("localAnswer").value = answerStr;
+
+        // QRコード表示
+        document.getElementById("answerQrCode").innerHTML = "";
+        new QRCode(document.getElementById("answerQrCode"), {
+          text: answerStr,
+          width: 200,
+          height: 200
+        });
+
+        // UI切替
+        answerPanel.style.display = "block";
+        offerPanel.style.display = "none";
+        setAnswerPanel.style.display = "none";
+        chatBox.style.display = "flex";
+      } catch (e) {
+        alert("Offerのセットに失敗しました。正しいJSONを貼り付けてください。");
+        console.error(e);
+      }
+    };
+
+    // 送信側：Answerセット
+    document.getElementById("btnSetRemoteAnswer").onclick = async () => {
+      try {
+        const remoteAnswer = JSON.parse(document.getElementById("remoteAnswer").value);
+        await peer.setRemoteDescription(remoteAnswer);
+
+        chatBox.style.display = "flex";
+      } catch (e) {
+        alert("Answerのセットに失敗しました。正しいJSONを貼り付けてください。");
+        console.error(e);
+      }
+    };
+  </script>
+</body>
+</html>
